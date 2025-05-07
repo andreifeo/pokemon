@@ -682,7 +682,7 @@ async function claimNFT(account: string, auctionId: number, auctionContract: eth
         // const estimatedGas = await auctionManagerContract.claimWonAuction.estimateGas(auctionId);
         // const gasLimit = estimatedGas * 120n / 100n; // Add a 20% buffer
         // const claimTx = await auctionManagerContract.claimWonAuction(auctionId, { gasLimit: gasLimit });
-        const claimTx = await (auctionDetails.highestBid != 0 ? auctionContract.claimWonAuction(auctionId) : auctionContract.reclaimUnsoldNFT(auctionId));
+        const claimTx = await (auctionDetails.highestBid != 0 ? auctionContract.claimWonNFT(auctionId) : auctionContract.reclaimUnsoldNFT(auctionId));
         console.log("Claim transaction sent:", claimTx.hash);
 
         // Wait for the transaction to be mined
@@ -874,6 +874,97 @@ async function withdrawFunds(account: string, auctionId: number, auctionContract
     // You'd typically update balance display or confirmation message
 }
 
+async function withdrawAllFunds(account:string,auctionContract:ethers.Contract|null):Promise<void>{
+    if (!auctionContract || !account) {
+        // Use alert for immediate user feedback for simple errors
+        throw new Error("Auction contract is not created yet or user is not logged in."); // Or throw a more specific error
+    }
+    let totalAuctions = 0;
+    try {
+        totalAuctions = Number(await auctionContract.totalAuctionsCreated());
+        console.log(`Total auctions created: ${totalAuctions}`);
+    } catch (error) {
+        console.error("Failed to get total auctions created:", error);
+        throw new Error("Could not determine the range of auctions to check.");
+    }
+
+    const auctionIdsWithFunds: number[] = [];
+
+    // Step 1: Iterate through all auction IDs to check for pending returns for the current user
+    // This might be slow if there are many auctions.
+    // A more efficient contract would allow fetching all pending returns for a user directly.
+    for (let i = 1; i <= totalAuctions; i++) {
+            try {
+                // Use the getPendingReturn view function
+                const pendingAmount: bigint = await auctionContract.getPendingReturn(i, account);
+
+                // If the user has a pending amount greater than 0 for this auction ID
+                if (pendingAmount > 0n) {
+                    console.log(`Found ${ethers.formatEther(pendingAmount)} ETH pending for auction ${i}`);
+                    auctionIdsWithFunds.push(i); // Add this ID to our list
+                }
+            } catch (error) {
+                console.warn(`Could not check pending return for auction ${i}:`, error);
+                // Continue the loop even if checking one auction fails
+            }
+    }
+
+    // If no auctions were found with pending funds
+    if (auctionIdsWithFunds.length === 0) {
+        console.log("No pending funds found across all auctions for the current user.");
+        // Return a success status but indicate nothing was withdrawn
+        return;
+    }
+
+    console.log(`Attempting to withdraw funds from ${auctionIdsWithFunds.length} auction(s) where funds are pending.`);
+
+    // Step 2: Call the withdraw function for each auction ID found
+    // We'll execute these sequentially to avoid potential nonce issues
+    const withdrawalResults: { auctionId: number; success: boolean; error?: string }[] = [];
+    let successfulWithdrawals=0;
+    let failedWithdrawals=0;
+    for (const auctionId of auctionIdsWithFunds) {
+        try {
+            withdrawFunds(account,auctionId,auctionContract);
+            // console.log(`Withdrawing from auction ${auctionId}...`);
+            //     // Call the contract's withdraw function for the specific auction ID
+            // const tx = await auctionContract.withdraw(auctionId);
+
+            // console.log(`Sending withdrawal transaction for auction ${auctionId}:`, tx.hash);
+            // const receipt = await tx.wait(); // Wait for the transaction to be mined
+
+            // console.log(`Withdrawal transaction for auction ${auctionId} successful:`, receipt);
+            // withdrawalResults.push({ auctionId, success: true });
+            successfulWithdrawals++;
+        } catch (error: any) {
+            console.error(`Failed to withdraw from auction ${auctionId}:`, error);
+                // Capture the error message for this specific withdrawal
+                let errorMessage = "Transaction failed.";
+                if (error.message) {
+                    // You can add checks for specific revert reasons from your contract here
+                    errorMessage = error.message;
+                }
+            failedWithdrawals++;
+                // Continue to try withdrawing from other auctions even if one fails
+        }
+    }
+
+    console.log("Withdrawal process complete.", withdrawalResults);
+
+    // Summarize the results
+        // const successfulWithdrawals = withdrawalResults.filter(r => r.success).length;
+        // const failedWithdrawals = withdrawalResults.filter(r => !r.success).length;
+        const message = `Withdrawal process finished. ${successfulWithdrawals} successful, ${failedWithdrawals} failed.`;
+
+        // You can choose to throw an error here if *any* withdrawal failed,
+        // or just return the results array and let the UI handle it.
+        // Returning the results provides more detail to the calling component.
+        console.log(`Failed withdrawal for ${failedWithdrawals} accounts`);
+        return;
+        // return { success: failedWithdrawals === 0, message: message, details: withdrawalResults };
+
+}
+
 // --- Mock Web3 Context Hook ---
 // Simulates wallet connection and provides contract interaction functions
 
@@ -889,7 +980,7 @@ interface Web3ContextType {
     placeBid?: (auctionId: number, bidAmount: bigint) => Promise<void>;
     getWonAuctions?: () => Promise<Auction[]>;
     claimNFT?: (auctionId: number) => Promise<void>;
-    claimOutbidFunds?: (auctionId: number) => Promise<void>;
+    claimAllOutbidFunds?: () => Promise<void>;
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined);
@@ -963,8 +1054,8 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
                 claimNFT: isConnected && account && auctionContract && pokemonContract
                     ? (auctionId) => claimNFT(account, auctionId, auctionContract)
                     : undefined,
-                claimOutbidFunds: isConnected && account && auctionContract
-                    ? (auctionId) => withdrawFunds(account, auctionId, auctionContract)
+                claimAllOutbidFunds: isConnected && account && auctionContract
+                    ? () => withdrawAllFunds(account, auctionContract)
                     : undefined,
             }}
         >

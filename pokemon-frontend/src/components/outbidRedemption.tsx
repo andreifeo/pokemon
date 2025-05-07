@@ -6,11 +6,11 @@ interface OutbidRedemptionProps {
 }
 
 const OutbidRedemption: React.FC<OutbidRedemptionProps> = () => {
-  const { account, isConnected, claimOutbidFunds } = useWeb3();
+  const { account, isConnected, claimAllOutbidFunds } = useWeb3();
   const [isClaiming, setIsClaiming] = useState(false);
 
   const handleClaimClick = async () => {
-    if (!claimOutbidFunds || !account) {
+    if (!claimAllOutbidFunds || !account) {
        alert("Connect your wallet to claim funds.");
        return;
     }
@@ -18,7 +18,7 @@ const OutbidRedemption: React.FC<OutbidRedemptionProps> = () => {
      if (window.confirm("Are you sure you want to claim your outbid funds?")) {
         setIsClaiming(true);
         try {
-            //////////////// await claimOutbidFunds();    TODO look over this
+            await claimAllOutbidFunds();
             alert("Outbid funds claimed successfully (simulated). Check your wallet balance.");
             // In a real app, you might show the amount claimed or update a balance display
         } catch (error) {
