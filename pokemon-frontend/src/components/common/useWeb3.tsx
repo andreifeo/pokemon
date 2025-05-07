@@ -1372,6 +1372,7 @@ useEffect(() => {
     // Fetch won auctions only if connected
     if (isConnected && account) {
         fetchWonAuctions();
+        fetchOwnedNFTs();
     } else {
          // Clear won auctions if disconnected
         setWonAuctions([]);
