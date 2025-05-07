@@ -864,6 +864,7 @@ export function useWeb3() {
     const connectWallet = async () => {
         console.log("Attempting to connect wallet..."); // Log at the start
 
+        
         const ethereum = (window as any).ethereum;
         if (ethereum){
             try{
