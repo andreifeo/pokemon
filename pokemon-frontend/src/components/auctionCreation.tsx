@@ -8,33 +8,34 @@ interface AuctionCreationProps {
 }
 
 const AuctionCreation: React.FC<AuctionCreationProps> = () => {
-  const { account, isConnected, getOwnedNFTs, createAuction } = useWeb3();
+  const { account, isConnected, ownedNFTs,isLoadingOwnedNFTs, createAuction } = useWeb3();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ownedNFTs, setOwnedNFTs] = useState<PokemonNFT[]>([]);
-  const [isLoadingNFTs, setIsLoadingNFTs] = useState(false);
+  // const [ownedNFTs, setOwnedNFTs] = useState<PokemonNFT[]>([]);
+  // const [isLoadingNFTs, setIsLoadingNFTs] = useState(false);
 
-  useEffect(() => {
-    const fetchNFTs = async () => {
-      if (getOwnedNFTs) {
-        setIsLoadingNFTs(true);
-        try {
-          const nfts = await getOwnedNFTs();
-          console.log("DOREL");
-          console.log(nfts);
-          setOwnedNFTs(nfts);
-        } catch (error) {
-          console.error("Failed to fetch owned NFTs:", error);
-        } finally {
-          setIsLoadingNFTs(false);
-        }
-      }
-    };
-    if (isConnected) {
-      fetchNFTs();
-    } else {
-        setOwnedNFTs([]); // Clear NFTs if disconnected
-    }
-  }, [isConnected, getOwnedNFTs]); // Re-run when connection status or getter changes
+  // useEffect(() => {
+  //   console.log("THIS REFRESHES HERE");
+  //   const fetchNFTs = async () => {
+  //     if (getOwnedNFTs) {
+  //       setIsLoadingNFTs(true);
+  //       try {
+  //         const nfts = await getOwnedNFTs();
+  //         console.log("DOREL");
+  //         console.log(nfts);
+  //         setOwnedNFTs(nfts);
+  //       } catch (error) {
+  //         console.error("Failed to fetch owned NFTs:", error);
+  //       } finally {
+  //         setIsLoadingNFTs(false);
+  //       }
+  //     }
+  //   };
+  //   if (isConnected) {
+  //     fetchNFTs();
+  //   } else {
+  //       setOwnedNFTs([]); // Clear NFTs if disconnected
+  //   }
+  // }, [isConnected, getOwnedNFTs]); // Re-run when connection status or getter changes
 
   console.log("AA");
   console.log(ownedNFTs);
@@ -67,16 +68,17 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
       }
       handleCloseModal(); // Close modal after attempt
   };
-
+  console.log("Length of owned NFT");
+  console.log(ownedNFTs.length);
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
       <h4>2.1. Auction Creation</h4>
       {isConnected ? (
         <>
-            <button onClick={handleCreateAuctionClick} disabled={isLoadingNFTs || ownedNFTs.length === 0}>
-              {isLoadingNFTs ? 'Loading NFTs...' : 'Create Auction'}
+            <button onClick={handleCreateAuctionClick} disabled={isLoadingOwnedNFTs || ownedNFTs.length === 0}>
+              {isLoadingOwnedNFTs ? 'Loading NFTs...' : 'Create Auction'}
             </button>
-            {ownedNFTs.length === 0 && !isLoadingNFTs && <p>No NFTs available to auction.</p>}
+            {ownedNFTs.length === 0 && !isLoadingOwnedNFTs && <p>No NFTs available to auction.</p>}
             <CreateAuctionModal
               isOpen={isModalOpen}
               onClose={handleCloseModal}
