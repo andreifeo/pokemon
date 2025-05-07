@@ -100,19 +100,56 @@ const ActiveAuctionItem: React.FC<ActiveAuctionItemProps> = ({
                 Time Left: {timeLeftString}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                <button onClick={async () => onEndAuctionClick(auction)}
+                {!isConnected||!account?(<></>):(
+                    auction.seller.toLowerCase() === account.toLowerCase() ? (
+                        // --- Connected Seller View ---
+                        <>
+                            {/* Seller: Show End button ONLY if time ended AND not already finalized */}
+                            <button
+                                    onClick={async () => onEndAuctionClick(auction)}
+                                    // Disable while transaction is pending if you add a state for that
+                                    disabled={!isConnected || !account || !(auction.seller.toLowerCase() === account?.toLowerCase()) || auction.endTime*1000 > Date.now()}
+                                    // style={{ marginRight: '10px' }} // Space between buttons if another one was here (not applicable for seller)
+                                >
+                                    {'End Auction'}
+                                </button>
+                            {/* Seller doesn't see a Bid button for their own auction */}
+                        </>
+                    ) : (
+                        // --- Connected Non-Seller View ---
+                        <>
+                             {/* Non-Seller: Show Bid button ONLY if time NOT ended AND not already finalized */}
+                             {!hasAuctionEnded && !auction.ended && !auction.claimed ? (
+                                 <button
+                                     onClick={() => onBidClick(auction)}
+                                     // Disable while modal is open or bid is submitting if needed
+                                 >
+                                     {'Bid'}
+                                 </button>
+                             ) : (
+                                 // Non-Seller: Show status if time ended OR already finalized
+                                  <span>
+                                     {/* If time ended but status flags aren't set, show 'Ended' */}
+                                     {auction.ended || auction.claimed ? (auction.claimed ? 'Claimed' : 'Ended') : 'Ended'}
+                                 </span>
+                             )}
+                             {/* Non-seller doesn't see an End button */}
+                        </>
+                    )
+                )}
+                {/* <button onClick={async () => onEndAuctionClick(auction)}
                     // Disable if not connected, not the seller, auction not ended by time, or already ended/claimed
                     disabled={!isConnected || !account || auction.seller.toLowerCase() !== account.toLowerCase() || auction.endTime > Date.now() || auction.ended || auction.claimed}
                     style={{ marginRight: '10px' }}
                     >
                     {'End Auction'}
-                </button>
-                <button
+                </button> */}
+                {/* <button
                     onClick={() => onBidClick(auction)} // Call the passed-in handler
                     disabled={!isConnected || !account || auction.seller.toLowerCase() === account?.toLowerCase() || hasAuctionEnded}
                 >
                     {hasAuctionEnded ? 'Ended' : 'Bid'}
-                </button>
+                </button> */}
             </div>
         </li>
     );
