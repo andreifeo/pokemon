@@ -1,0 +1,133 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.section {
+  border: 1px solid #ccc;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.minting-section {
+  background-color: #e0f7fa; /* Light blue */
+}
+
+.auction-system-section {
+  background-color: #fff3e0; /* Light orange */
+  display: flex;
+  flex-direction: column; /* Arrange subsections vertically */
+  gap: 20px; /* Space between subsections */
+}
+
+.subsection {
+  border: 1px dashed #b0bec5; /* Light gray dashed border */
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #ffffff; /* White background */
+}
+
+.auction-list {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap */
+    gap: 15px; /* Space between auction items */
+    justify-content: center; /* Center items */
+}
+
+.auction-item, .won-auction-item {
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 5px;
+    width: 180px; /* Fixed width for items */
+    text-align: center;
+    background-color: #e8f5e9; /* Light green */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.won-auction-item {
+     background-color: #e3f2fd; /* Light blue */
+}
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: left;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.modal-content input {
+    display: block;
+    margin-top: 5px;
+    padding: 8px;
+    width: calc(100% - 18px); /* Adjust for padding/border */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-content button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.nft-selection {
+    border: 1px dashed #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    max-height: 150px; /* Scroll if many NFTs */
+    overflow-y: auto;
+}
+
+.nft-option {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.nft-option:hover {
+    background-color: #f0f0f0;
+}
+
+.nft-option.selected {
+    background-color: #c8e6c9; /* Light green selected */
+    border-color: #4caf50; /* Green border */
+}
+
+.nft-option img {
+    margin-right: 10px;
+    border-radius: 4px;
+}
