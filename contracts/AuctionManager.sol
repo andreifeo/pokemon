@@ -152,8 +152,6 @@ contract AuctionManager is ReentrancyGuard{
         return auctionData[auctionId].pendingReturns[user];
     }
 
-    
-
     function totalAuctionsCreated() public view returns(uint256){
         return nextId-1;
     }

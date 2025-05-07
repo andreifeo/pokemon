@@ -112,23 +112,23 @@ contract PokemonTest is ERC721, Ownable,ERC721Enumerable{
             ']}'
         ));
         string memory base64EncodedJson=Base64.encode(bytes(json));
-        console.log(json);
-        console.log(base64EncodedJson);
+        // console.log(json);
+        // console.log(base64EncodedJson);
 
         return string(abi.encodePacked('data:application/json;base64,', base64EncodedJson));
     }
 
     function setPokemonImageURI(string memory pokemonName, string memory uri) public onlyOwner {
-        console.log("setting pokemon uri");
+        // console.log("setting pokemon uri");
         _pokemonImageURIs[pokemonName] = uri;
-        console.log("setting pokemon uri");
-        console.log("URI for ",pokemonName," has been set to ",uri);
+        // console.log("setting pokemon uri");
+        // console.log("URI for ",pokemonName," has been set to ",uri);
     }
 
     function _getPokemonImageURI(string memory pokemonName) internal view returns (string memory) {
-        console.log("getting the pokemon image uri");
-        console.log(pokemonName);
-        console.log(_pokemonImageURIs[pokemonName]);
+        // console.log("getting the pokemon image uri");
+        // console.log(pokemonName);
+        // console.log(_pokemonImageURIs[pokemonName]);
         return _pokemonImageURIs[pokemonName];
     }
    function mint(address to) public returns (uint256){
@@ -142,7 +142,7 @@ contract PokemonTest is ERC721, Ownable,ERC721Enumerable{
     //    console.log("primul");
        for (uint256 i = 0; i < possiblePokemon.length; i++) {
            currentProbability+=possiblePokemon[i].probability;
-            console.log(currentProbability);
+            // console.log(currentProbability);
            if (random <= currentProbability) {
                selectedName = possiblePokemon[i].name;
                selectedType = possiblePokemon[i].pokemonType;

@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useWeb3 } from './common/useWeb3';
 import { Auction } from './common/types';
 import BidModal from './bidModal'; // We'll create this next
+import { ethers } from 'ethers';
+import ActiveAuctionItem from './activeAuctionItem'; // Import the new component
 
 interface ActiveAuctionsProps {
   // No specific props needed here, uses useWeb3 hook
 }
 
 const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
-  const { account, isConnected, getActiveAuctions, getWonAuctions, placeBid, claimNFT } = useWeb3();
+  const { account, isConnected, getActiveAuctions, getWonAuctions, placeBid, claimNFT ,endAuction} = useWeb3();
   const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
   const [wonAuctions, setWonAuctions] = useState<Auction[]>([]);
   const [isLoadingActiveAuctions, setIsLoadingActiveAuctions] = useState(false);
@@ -34,6 +36,7 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
       }
     };
     fetchAuctions();
+
     // Add a timer to refresh auctions periodically in a real app
     const timer = setInterval(fetchAuctions, 30000); // Refresh every 30 seconds
     return () => clearInterval(timer); // Cleanup timer
@@ -63,20 +66,45 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
     }
   }, [isConnected, account, getWonAuctions]); // Re-run when connection or getter changes
 
+  const handleEndAuctionClick = async (auction: Auction) => {
+    if (!endAuction){
+      console.error("End Auction functionality not available");
+      return;
+    }
+      if (!isConnected || !account) {
+          alert("Connect your wallet to end auction.");
+          return;
+      }
+       if (auction.seller.toLowerCase() !== account.toLowerCase()) {
+           alert("You cannot end someone else's auction.");
+           return;
+       }
+       try{
+        await endAuction(auction.id);
+        alert("Auction ended succesfully");
+       }
+        catch(error){
+          console.error("Failed to end auction in UI:", error);
+          if(error instanceof Error){
+            alert(error.message || "Failed to end auction."); // Show user-friendly error
+
+          }
+        }
+  };
   const handleBidClick = (auction: Auction) => {
       if (!isConnected || !account) {
           alert("Connect your wallet to place a bid.");
           return;
       }
-       if (auction.seller.toLowerCase() === account.toLowerCase()) {
-           alert("You cannot bid on your own auction.");
-           return;
-       }
+      if (auction.seller.toLowerCase() === account.toLowerCase()) {
+          alert("You cannot bid on your own auction.");
+          return;
+      }
     setSelectedAuctionForBid(auction);
     setBidModalOpen(true);
   };
 
-   const handlePlaceBid = async (auctionId: number, bidAmount: number) => {
+   const handlePlaceBid = async (auctionId: number, bidAmount: bigint) => {
        if (!placeBid) {
            console.error("Place bid function not available.");
            return;
@@ -130,6 +158,29 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
         return `${hours}h ${minutes}m ${seconds}s`;
     };
 
+    function truncateToFourDecimals(input: string | number): string {
+      // Ensure input is treated as a string
+      const inputString = String(input);
+  
+      const decimalIndex = inputString.indexOf('.');
+  
+      // If there's no decimal point, or if there are already 4 or fewer digits after the decimal,
+      // return the original string.
+      // We check if the length is less than or equal to the decimal index + 5
+      // (index of '.' + 1 for the '.' itself + 4 for the max digits).
+      if (decimalIndex === -1 || inputString.length <= decimalIndex + 5) {
+          return inputString;
+      }
+  
+      // Otherwise, truncate the string at the desired position.
+      // The substring goes from the start (index 0) up to, but not including,
+      // the index after the 4th decimal digit.
+      // Index of '.' is decimalIndex
+      // 1st decimal digit is at decimalIndex + 1
+      // 4th decimal digit is at decimalIndex + 4
+      // We want to include the 4th digit, so we cut *after* it. The index *after* is decimalIndex + 5.
+      return inputString.substring(0, decimalIndex + 5);
+  }
 
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
@@ -143,23 +194,14 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {activeAuctions.map(auction => (
-            <li key={auction.id} style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px', display: 'flex', alignItems: 'center' }}>
-              <img src={auction.nft.imageUrl} alt={auction.nft.name} style={{ width: '50px', height: '50px', marginRight: '15px' }} />
-              <div>
-                <strong>{auction.nft.name}</strong> ({auction.nft.type})
-                <br />
-                Current Bid: {auction.currentBid} ETH
-                <br />
-                 Time Left: {formatTimeRemaining(auction.endTime)}
-              </div>
-              <button
-                  onClick={() => handleBidClick(auction)}
-                  disabled={!isConnected || !account || auction.seller.toLowerCase() === account?.toLowerCase() || auction.endTime <= Math.floor(Date.now()/1000)} // Disable if not connected, seller, or ended
-                  style={{ marginLeft: 'auto' }}
-                >
-                  {auction.endTime <= Math.floor(Date.now()/1000) ? 'Ended' : 'Bid'}
-                </button>
-            </li>
+             <ActiveAuctionItem
+                 key={auction.id} // Use auction.id as the key
+                 auction={auction}
+                 account={account}
+                 isConnected={isConnected}
+                 onBidClick={handleBidClick}// Pass the bid handler down
+                 onEndAuctionClick={handleEndAuctionClick} // Pass the end auction handler down
+             />
           ))}
         </ul>
       )}

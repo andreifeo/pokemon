@@ -13,7 +13,8 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
   const [durationHours, setDurationHours] = useState<number>(24); // Duration in hours
   const [startBid, setStartBid] = useState<number>(0.01); // Starting bid in Ether units
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  console.log("CC");
+  console.log(ownedNFTs);
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {

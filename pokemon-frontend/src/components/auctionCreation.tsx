@@ -19,6 +19,8 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
         setIsLoadingNFTs(true);
         try {
           const nfts = await getOwnedNFTs();
+          console.log("DOREL");
+          console.log(nfts);
           setOwnedNFTs(nfts);
         } catch (error) {
           console.error("Failed to fetch owned NFTs:", error);
@@ -33,6 +35,10 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
         setOwnedNFTs([]); // Clear NFTs if disconnected
     }
   }, [isConnected, getOwnedNFTs]); // Re-run when connection status or getter changes
+
+  console.log("AA");
+  console.log(ownedNFTs);
+  console.log("BB");
 
   const handleCreateAuctionClick = () => {
     if (!isConnected || ownedNFTs.length === 0) {

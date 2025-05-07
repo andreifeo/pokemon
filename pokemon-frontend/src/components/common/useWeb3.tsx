@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import AuctionABI from '../../../../ignition/deployments/chain-1337/artifacts/AuctionModule#AuctionManager.json';
-import PokemonTestABI from '../../../../ignition/deployments/chain-1337/artifacts/AuctionModule#PokemonTest.json';
+import PokemonTestABI from '../../PokemonTestABI.json';
+import AuctionABI from '../../AuctionABI.json';
 import { Auction, PokemonNFT } from './types';
 
 // --- Mock Data and Simulated Contract Functions ---
@@ -19,7 +19,7 @@ async function mintNFT(account: string, pokemonContract: ethers.Contract | null)
     if (!pokemonContract || !account) throw Error("Pokemon contract not activated or account not logged in");
     let newNFT: PokemonNFT | null = null;
     try {
-        const tx = await (pokemonContract.mint(account));
+        const tx = await (pokemonContract.mint(account,{gasLimit:3000000}));
         const receipt = await tx.wait();
         alert("Pokemon minted successfully!");
         const contractInterface = pokemonContract.interface;
@@ -123,10 +123,31 @@ async function getOwnedNFTs(account: string, pokemonContract: ethers.Contract | 
                 // after a valid balanceOf call, unless there's a network issue or contract bug.
             }
         }
+
+        const pokemonNFTs = await Promise.all(
+            ownedTokenIds.map(async (tokenIdString) => {
+                const tokenId = Number(tokenIdString); // Convert ID string to number/BigInt if needed by getPokemonNFTFromId
+                try {
+                    // Use the existing function to get the full NFT object
+                    const nft = await getPokemonNFTFromId(tokenId, pokemonContract);
+                    return nft;
+                } catch (error) {
+                    // Handle cases where metadata fetch fails for a specific token
+                    console.error(`Failed to fetch metadata for token ${tokenIdString}:`, error);
+                    // You might return null or a placeholder object here,
+                    // or filter it out later. For now, let's log and allow Promise.all to collect results.
+                    return null; // Return null for failed fetches
+                }
+            })
+        );
+
+        const validPokemonNFTs = pokemonNFTs.filter(nft => nft !== null) as PokemonNFT[];
+
+
         console.log("\n--- Complete List of Owned Token IDs ---");
-        console.log(ownedTokenIds);
+        console.log(validPokemonNFTs);
         console.log("--------------------------------------");
-        return ownedTokenIds;
+        return validPokemonNFTs;
     } catch (error) {
         console.error("An error occurred while listing owned tokens:", error);
         // Handle specific errors (e.g., invalid contract address, network issues)
@@ -194,7 +215,9 @@ async function getPokemonNFTFromId(pokemonId: number, pokemonContract: ethers.Co
         // --- Step 3: Structure Data into PokemonNFT Interface ---
         // Extract required fields from the parsed metadata
         const name = metadata.name;
-        const imageUrl = metadata.image; // Your metadata uses 'image' for the image URI
+        const imageUrl = metadata.image.replace('ipfs://','https://dweb.link/ipfs/'); // Your metadata uses 'image' for the image URI
+        console.log(metadata.image);
+        console.log(imageUrl);
         let type = "Unknown";
         let rarity = "Unknown";
 
@@ -263,13 +286,13 @@ async function getActiveAuctions(pokemonContract: ethers.Contract | null, auctio
                 const currentTimeMillis = Date.now();
                 const auctionEndTimeMillis = Number(auction.auctionEndTime) * 1000; // Convert Solidity timestamp (seconds) to JS milliseconds
 
-                if (!auction.ended && currentTimeMillis <= auctionEndTimeMillis) {
+                if (!auction.ended /*&& currentTimeMillis <= auctionEndTimeMillis*/) {
                     console.log(`Found active auction: ${auctionId}`);
                     // Add the auction details to the list, including the ID
                     activeAuctions.push({
                         id: auctionId, // Store ID as string
                         seller: auction.seller,
-                        endTime: auctionEndTimeMillis, // Convert timestamp to Date object
+                        endTime: Number(auction.auctionEndTime), // Convert timestamp to Date object
                         startingBid: auction.startingBid, // Convert BigInts to string
                         nft: await getPokemonNFTFromId(auction.pokemonId, pokemonContract),
                         highestBidder: auction.highestBidder,
@@ -401,7 +424,50 @@ async function createAuction(account: string, pokemonId: number, biddingTimeSeco
     // // You'd typically refresh the active auctions list here
 }
 
-async function placeBid(account: string, auctionId: number, bidAmountEth: number, auctionContract: ethers.Contract | null): Promise<void> {
+async function endAuction(account:string,auctionId:number,auctionContract:ethers.Contract|null):Promise<void>{
+    if(!account||!auctionContract){
+        throw new Error("No pokemon contract");
+    }
+
+    try {
+        console.log(`Calling contract endAuction for auction ${auctionId}`);
+         // Assuming your contract has an endAuction function that takes auctionId
+         // This function in the contract should typically:
+         // 1. Check if msg.sender is the seller.
+         // 2. Check if auction.endTime has passed (using block.timestamp).
+         // 3. Transfer NFT to winner or back to seller.
+         // 4. Transfer the final bid amount to the seller (minus fees, if any).
+         // 5. Mark the auction as ended in the contract's state.
+        const tx = await auctionContract.auctionEnd(auctionId);
+
+        console.log("Sending end auction transaction:", tx.hash);
+        // Wait for the transaction to be mined and confirmed
+        const receipt = await tx.wait();
+        console.log("End auction transaction successful:", receipt);
+
+         // Return the transaction receipt upon success
+        return receipt;
+
+    } catch (error: any) { // Use 'any' to easily access error properties like message
+        console.error(`Error calling endAuction for auction ${auctionId}:`, error);
+
+        // You can add specific error message checks based on your contract's revert strings
+        let userMessage = "Failed to end auction.";
+        if (error.message) {
+            if (error.message.includes("Auction not yet ended")) userMessage = "Auction time has not expired yet.";
+            if (error.message.includes("Only the seller can end their auction")) userMessage = "You are not the seller of this auction.";
+            if (error.message.includes("The auction has already ended")) userMessage = "This auction has already been ended.";
+            // Add other specific contract error messages here
+            else userMessage = `Failed to end auction: ${error.message}`; // Fallback to generic error message
+        }
+        // Re-throw the error so the UI component can handle it (e.g., show an alert)
+        const finalError = new Error(userMessage);
+        (finalError as any).originalError = error; // Keep original error for debugging
+        throw finalError;
+    }
+}
+
+async function placeBid(account: string, auctionId: number, bidAmountEth: bigint, auctionContract: ethers.Contract | null): Promise<void> {
     if (!auctionContract || !account) {
         throw Error("No auction contract or user is not logged in");
     }
@@ -412,7 +478,7 @@ async function placeBid(account: string, auctionId: number, bidAmountEth: number
 
         // Convert the bid amount from Ether (string) to Wei (BigInt)
         // This is the value that will be sent with the transaction
-        const bidAmountWei = ethers.parseEther(String(bidAmountEth));
+        const bidAmountWei = bidAmountEth;
         console.log(`Bid Amount in Wei: ${bidAmountWei.toString()}`);
         const auctionDetails = await auctionContract.auctionData(auctionId);
         if (bidAmountWei <= auctionDetails.highestBid) {
@@ -530,6 +596,7 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
         console.log("Iterating through ended auctions to find won and claimable ones...");
 
         // Iterate through all possible auction IDs from 1 up to the total created
+        // console.log(totalAuctionsCount);
         for (let i = 1; i <= totalAuctionsCount; i++) {
             const auctionId = i; // Use BigInt for auction ID
 
@@ -537,20 +604,24 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
                 // Fetch the details for each auction ID using the public getter
                 const auction = await auctionContract.auctionData(auctionId);
 
+                if(auction.ended===true){
+                    console.log(auction);
+                }
+
                 // Check the three conditions for "won and claimable":
                 // 1. Auction has ended
                 // 2. Target account was the highest bidder
                 // 3. NFT has not been claimed yet
                 // Ensure comparing addresses case-insensitively and BigInts/booleans correctly
                 if (auction.ended === true &&
-                    auction.highestBidder.toLowerCase() === account.toLowerCase() &&
+                    (auction.highestBidder.toLowerCase() === account.toLowerCase()||(auction.highestBid==0 && auction.seller.toLowerCase()==account.toLowerCase())) &&
                     auction.claimed === false) {
                     console.log(`Found won and claimable auction: ${auctionId.toString()}`);
                     // Add the auction details to the list
                     wonClaimableAuctions.push({
                         id: auctionId, // Store ID as string
                         seller: auction.seller,
-                        endTime: Number(auction.auctionEndTime) * 1000, // Convert timestamp to Date object
+                        endTime: Number(auction.auctionEndTime), // Convert timestamp to Date object
                         startingBid: auction.startingBi, // Convert BigInts to string
                         nft: await getPokemonNFTFromId(auction.pokemonId, pokemonContract),
                         highestBidder: auction.highestBidder,
@@ -572,7 +643,6 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
 
         console.log(`Finished checking ${totalAuctionsCount} auctions.`);
         console.log(`Found ${wonClaimableAuctions.length} won and claimable auctions for ${account}.`);
-
 
         return wonClaimableAuctions; // Return the array of matching auctions
 
@@ -815,7 +885,8 @@ interface Web3ContextType {
     getOwnedNFTs?: () => Promise<PokemonNFT[]>;
     getActiveAuctions?: () => Promise<Auction[]>;
     createAuction?: (pokemonId: number, duration: number, startBid: number) => void;
-    placeBid?: (auctionId: number, bidAmount: number) => Promise<void>;
+    endAuction?:(auctionId:number)=>Promise<void>;
+    placeBid?: (auctionId: number, bidAmount: bigint) => Promise<void>;
     getWonAuctions?: () => Promise<Auction[]>;
     claimNFT?: (auctionId: number) => Promise<void>;
     claimOutbidFunds?: (auctionId: number) => Promise<void>;
@@ -835,8 +906,8 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (signer) {
             try {
-                const pokemon = new ethers.Contract(contractAddressPokemon, PokemonTestABI.abi, signer);
-                const auction = new ethers.Contract(contractAddressAuction, AuctionABI.abi, signer);
+                const pokemon = new ethers.Contract(contractAddressPokemon, PokemonTestABI, signer);
+                const auction = new ethers.Contract(contractAddressAuction, AuctionABI, signer);
                 setPokemonContract(pokemon);
                 setAuctionContract(auction);
             } catch (error) {
@@ -883,6 +954,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
                 placeBid: isConnected && account && auctionContract
                     ? (auctionId, bidAmount) => placeBid(account, auctionId, bidAmount, auctionContract)
                     : undefined,
+                endAuction: isConnected && account && auctionContract
+                    ? (auctionId)=>endAuction(account,auctionId,auctionContract)
+                    :undefined,
                 getWonAuctions: isConnected && account && pokemonContract && auctionContract
                     ? () => getWonAuctions(account, pokemonContract, auctionContract)
                     : undefined,
