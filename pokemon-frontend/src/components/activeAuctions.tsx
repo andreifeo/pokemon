@@ -181,6 +181,8 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
       // We want to include the 4th digit, so we cut *after* it. The index *after* is decimalIndex + 5.
       return inputString.substring(0, decimalIndex + 5);
   }
+  console.log("Dorellll");
+  console.log(wonAuctions);
 
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
@@ -206,6 +208,7 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
         </ul>
       )}
 
+
       <h5 style={{ marginTop: '20px' }}>Won Auctions (Ready to Claim)</h5>
        {isLoadingWonAuctions ? (
           <p>Loading won auctions...</p>
@@ -216,11 +219,19 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
             {wonAuctions.map(auction => (
                 <li key={`won-${auction.id}`} style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px', display: 'flex', alignItems: 'center' }}>
                      <img src={auction.nft.imageUrl} alt={auction.nft.name} style={{ width: '50px', height: '50px', marginRight: '15px' }} />
+                     {auction.highestBidder!=="0x0000000000000000000000000000000000000000"?
                      <div>
-                         You won: <strong>{auction.nft.name}</strong> (ID: {auction.nft.id})
-                         <br/>
-                         Final Bid: {auction.currentBid} ETH
-                     </div>
+                     You won: <strong>{auction.nft.name}</strong> (ID: {auction.nft.id})
+                     <br/>
+                     Final Bid: {ethers.formatEther(auction.currentBid.toString())} ETH
+                 </div>
+                  :
+                  <div>
+                     You can reclaim: <strong>{auction.nft.name}</strong> (ID: {auction.nft.id})
+                     <br/>
+                 </div>
+                     }
+                     
                     <button
                         onClick={() => handleClaimNFTClick(auction.id)}
                         disabled={!isConnected || !account}

@@ -682,7 +682,7 @@ async function claimNFT(account: string, auctionId: number, auctionContract: eth
         // const estimatedGas = await auctionManagerContract.claimWonAuction.estimateGas(auctionId);
         // const gasLimit = estimatedGas * 120n / 100n; // Add a 20% buffer
         // const claimTx = await auctionManagerContract.claimWonAuction(auctionId, { gasLimit: gasLimit });
-        const claimTx = await (auctionDetails.highestBid != 0 ? auctionContract.claimWonAuction(auctionId) : auctionContract.reclaimUnsoldNFTAuction(auctionId));
+        const claimTx = await (auctionDetails.highestBid != 0 ? auctionContract.claimWonAuction(auctionId) : auctionContract.reclaimUnsoldNFT(auctionId));
         console.log("Claim transaction sent:", claimTx.hash);
 
         // Wait for the transaction to be mined
