@@ -1,11 +1,11 @@
 // scripts/setPokemonImageURIs.ts
 import { ethers } from "hardhat";
-import PokemonTestABI from "../pokemon-frontend/src/PokemonTestABI.json";
+import PokemonTestABI from "../ignition/deployments/chain-1337/artifacts/AuctionModule#PokemonTest.json";
 
 async function main() {
   const [owner] = await ethers.getSigners();
   const contractPokemonAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your contract address
-  const pokemonContract = new ethers.Contract(contractPokemonAddress, PokemonTestABI, owner);
+  const pokemonContract = new ethers.Contract(contractPokemonAddress, PokemonTestABI.abi, owner);
 
   // Replace these with your actual IPFS URIs
   const pokemonImageMap: { [key: string]: string } = {

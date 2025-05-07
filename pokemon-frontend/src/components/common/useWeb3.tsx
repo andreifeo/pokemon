@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import AuctionABI from '../../AuctionModule#AuctionManager.json';
-import PokemonTestABI from '../../AuctionModule#PokemonTest.json';
+import AuctionABI from '../../../../ignition/deployments/chain-1337/artifacts/AuctionModule#AuctionManager.json';
+import PokemonTestABI from '../../../../ignition/deployments/chain-1337/artifacts/AuctionModule#PokemonTest.json';
 import { Auction, PokemonNFT } from './types';
 
 // --- Mock Data and Simulated Contract Functions ---
