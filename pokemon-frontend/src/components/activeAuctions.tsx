@@ -10,61 +10,63 @@ interface ActiveAuctionsProps {
 }
 
 const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
-  const { account, isConnected, getActiveAuctions, getWonAuctions, placeBid, claimNFT ,endAuction} = useWeb3();
-  const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
-  const [wonAuctions, setWonAuctions] = useState<Auction[]>([]);
-  const [isLoadingActiveAuctions, setIsLoadingActiveAuctions] = useState(false);
-  const [isLoadingWonAuctions, setIsLoadingWonAuctions] = useState(false);
+  const { account, isConnected, activeAuctions, isLoadingActiveAuctions,wonAuctions,isLoadingWonAuctions, placeBid, claimNFT ,endAuction} = useWeb3();
+  // const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
+  // const [wonAuctions, setWonAuctions] = useState<Auction[]>([]);
+  // const [isLoadingActiveAuctions, setIsLoadingActiveAuctions] = useState(false);
+  // const [isLoadingWonAuctions, setIsLoadingWonAuctions] = useState(false);
   const [bidModalOpen, setBidModalOpen] = useState(false);
   const [selectedAuctionForBid, setSelectedAuctionForBid] = useState<Auction | null>(null);
 
   // Fetch active auctions
-  useEffect(() => {
-    const fetchAuctions = async () => {
-      if (getActiveAuctions) {
-        setIsLoadingActiveAuctions(true);
-        try {
-          const auctions = await getActiveAuctions();
-          setActiveAuctions(auctions);
-        } catch (error) {
-          console.error("Failed to fetch active auctions:", error);
-        } finally {
-          setIsLoadingActiveAuctions(false);
-        }
-      } else {
-          setActiveAuctions([]);
-      }
-    };
-    fetchAuctions();
+  // useEffect(() => {
+  //   console.log("This got refreshed");
+  //   const fetchAuctions = async () => {
+  //     console.log("This got refreshed here");
+  //     if (getActiveAuctions) {
+  //       setIsLoadingActiveAuctions(true);
+  //       try {
+  //         const auctions = await getActiveAuctions();
+  //         setActiveAuctions(auctions);
+  //       } catch (error) {
+  //         console.error("Failed to fetch active auctions:", error);
+  //       } finally {
+  //         setIsLoadingActiveAuctions(false);
+  //       }
+  //     } else {
+  //         setActiveAuctions([]);
+  //     }
+  //   };
+  //   fetchAuctions();
 
-    // Add a timer to refresh auctions periodically in a real app
-    const timer = setInterval(fetchAuctions, 30000); // Refresh every 30 seconds
-    return () => clearInterval(timer); // Cleanup timer
-  }, [getActiveAuctions]); // Re-run when getter changes
+  //   // Add a timer to refresh auctions periodically in a real app
+  //   // const timer = setInterval(fetchAuctions, 30000); // Refresh every 30 seconds
+  //   // return () => clearInterval(timer); // Cleanup timer
+  // }, [getActiveAuctions]); // Re-run when getter changes
 
-   // Fetch won auctions
-  useEffect(() => {
-    const fetchWonAuctions = async () => {
-      if (getWonAuctions) {
-        setIsLoadingWonAuctions(true);
-        try {
-          const auctions = await getWonAuctions();
-          setWonAuctions(auctions);
-        } catch (error) {
-          console.error("Failed to fetch won auctions:", error);
-        } finally {
-          setIsLoadingWonAuctions(false);
-        }
-      } else {
-        setWonAuctions([]);
-      }
-    };
-    if (isConnected && account) {
-       fetchWonAuctions();
-    } else {
-        setWonAuctions([]); // Clear won auctions if disconnected
-    }
-  }, [isConnected, account, getWonAuctions]); // Re-run when connection or getter changes
+  //  // Fetch won auctions
+  // useEffect(() => {
+  //   const fetchWonAuctions = async () => {
+  //     if (getWonAuctions) {
+  //       setIsLoadingWonAuctions(true);
+  //       try {
+  //         const auctions = await getWonAuctions();
+  //         setWonAuctions(auctions);
+  //       } catch (error) {
+  //         console.error("Failed to fetch won auctions:", error);
+  //       } finally {
+  //         setIsLoadingWonAuctions(false);
+  //       }
+  //     } else {
+  //       setWonAuctions([]);
+  //     }
+  //   };
+  //   if (isConnected && account) {
+  //      fetchWonAuctions();
+  //   } else {
+  //       setWonAuctions([]); // Clear won auctions if disconnected
+  //   }
+  // }, [isConnected, account, getWonAuctions]); // Re-run when connection or getter changes
 
   const handleEndAuctionClick = async (auction: Auction) => {
     if (!endAuction){
@@ -183,6 +185,9 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
   }
   console.log("Dorellll");
   console.log(wonAuctions);
+
+  console.log(activeAuctions);
+
 
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>

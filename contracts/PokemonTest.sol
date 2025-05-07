@@ -63,6 +63,8 @@ contract PokemonTest is ERC721, Ownable,ERC721Enumerable{
    ];
    uint256[]public partialProbability;
     
+    event MintedPokemon(address account,uint256 tokenId);
+
    constructor()ERC721("PokemonTest","PKMN") Ownable(msg.sender){
        uint256 total=0;
        for(uint256 i=0;i<possiblePokemon.length;i++){
@@ -169,9 +171,10 @@ contract PokemonTest is ERC721, Ownable,ERC721Enumerable{
     //    console.log("IONE2");
     //    pokemonData[tokenId]=Pokemon("Pikachu","testDamage",10,"Ultra mega rare");
 
-
+        console.log(tokenId);
        _safeMint(to,tokenId);
     //    console.log("IONEL3");
+        emit MintedPokemon(to, tokenId);
        return tokenId;
    }
    function isOwner(address potentialOwner,uint256 pokemonId) public view returns(bool){
