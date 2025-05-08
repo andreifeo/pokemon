@@ -5,7 +5,7 @@ This project demonstrates the minting of Pokemon cards as well as their trading.
 2. [Function Documentation](#function-documentation)
    
 ## Set-up
-First download all the files and open them. Then, to test the contracts, you can set up a localhost through the following:
+First download all the files and open them. Then, to test the contracts, you can run the program through the following:
 
 ```shell
 npm install --save react-router-dom
@@ -25,12 +25,12 @@ Once it has been installed, the following command will suffice to switch Node ve
 nvm use 20.18.0
 ```
 
-Once the setup is done, call the following commands:
+In order to test the minting and trading functionalities, we connect to the Hardhat development network:
 ```shell
 npx hardhat compile
 npx hardhat node
 ```
-The account numbers listed here (numbered #0 to #19) may be used as test accounts. They each hold 10000 ETH temporary (fake) ETH to use to mint pokemons or to trade them.
+The account numbers listed here (numbered #0 to #19) may be used as test accounts. They each hold 10000 ETH temporary (fake) ETH to use in order to mint pokemons or to trade them.
 
 In a new terminal, call
 ```shell
@@ -43,6 +43,7 @@ Then finally:
 cd pokemon-frontend
 npm start
 ```
+
 Next, a webpage will open automatically, where you will be asked to first connect your MetaMask wallet. If you do not have one, please install the extension [here](https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm) for the Microsoft Edge Extension and [here](https://chromewebstore.google.com/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) for the Google Chrome Extension.
 The next step is to add the custom test network:
 1. In the wallet, click the upper left corner to select a network
@@ -55,7 +56,7 @@ The next step is to add the custom test network:
 
 
 ## Function Documentation
-
+Broadly speaking, the program consists of, on the backend, the contracts _`AuctionManager.sol`_ and _`PokemonTest.sol`_ in the contracts folder with their corresponding ignition modules _`AuctionModule.ts`_ and _`PokemonModule`_ in order to deploy the contracts. On the frontend (contained in the file pokemon-frontend), we use web3 in order to interact with the contracts. Inside _`pokemon-frontend/src/components/common/useWeb3.tsx`_ is all the program that connects the frontend webpage with the backend contracts.
 
 
 
