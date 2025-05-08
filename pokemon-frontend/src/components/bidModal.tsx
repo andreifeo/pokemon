@@ -19,12 +19,8 @@ const BidModal: React.FC<BidModalProps> = ({ isOpen, onClose, auction, onPlaceBi
         const currentBidWei=auction.currentBid as unknown as bigint;
 
         const minIncrementWei="0.001";
-        console.log(currentBidWei);
-        console.log(minIncrementWei);
         const minNextBidWei=currentBidWei+ethers.parseEther(minIncrementWei);
-        console.log(minNextBidWei);
         const minNextBidEthString = ethers.formatEther(minNextBidWei)
-        console.log(minNextBidEthString);
 
         setBidAmount(minNextBidEthString);
       }catch(error){

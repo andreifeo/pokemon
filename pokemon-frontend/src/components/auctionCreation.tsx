@@ -9,9 +9,6 @@ interface AuctionCreationProps {
 const AuctionCreation: React.FC<AuctionCreationProps> = () => {
   const { account, isConnected, ownedNFTs,isLoadingOwnedNFTs, createAuction } = useWeb3();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log("AA");
-  console.log(ownedNFTs);
-  console.log("BB");
 
   const handleCreateAuctionClick = () => {
     if (!isConnected || ownedNFTs.length === 0) {

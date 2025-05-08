@@ -14,8 +14,6 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
   const [startBid, setStartBid] = useState<number>(0.01);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [listingType,setListingType]=useState<string>("Auction")
-  console.log("CC");
-  console.log(ownedNFTs);
   useEffect(() => {
     if (isOpen) {
       setSelectedNftId(ownedNFTs.length > 0 ? ownedNFTs[0].id : '');
