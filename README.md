@@ -58,5 +58,10 @@ The next step is to add the custom test network:
 ## Function Documentation
 Broadly speaking, the program consists of, on the backend, the contracts _`AuctionManager.sol`_ and _`PokemonTest.sol`_ in the contracts folder with their corresponding ignition modules _`AuctionModule.ts`_ and _`PokemonModule`_ in order to deploy the contracts. On the frontend (contained in the file pokemon-frontend), we use web3 in order to interact with the contracts. Inside _`pokemon-frontend/src/components/common/useWeb3.tsx`_ is all the program that connects the frontend webpage with the backend contracts.
 
+In the frontend we have all the files inside the folder _`pokemon-frontend`_. The main code of the frontend is inside the folder _`src/components`_. Outside of it are mostly automatically intitialized files in order to have a functioning environment.
+
+### activeAuctionItem.tsx
+This is the file responsible for the individual auctions. `formatTimeLeft` formats the time shows in hours, minutes and seconds. The function `truncateToFourDecimals` is used for showing the current highest bid. 
+
 
 
