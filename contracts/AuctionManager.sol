@@ -12,19 +12,24 @@ contract AuctionManager is ReentrancyGuard{
     struct Auction{
         address payable seller;
         uint256 auctionEndTime;
-        uint256 startingBid;
         uint256 pokemonId;
-
-        address highestBidder;
-        uint256 highestBid;
+        bool isFixedPrice;
         bool ended;
         bool claimed;
+
+        uint256 startingBid;
+        address highestBidder;
+        uint256 highestBid;
         mapping(address=>uint256) pendingReturns;
     }
 
     mapping(uint256=>Auction) public auctionData;
     
 
+
+
+    event FixedPriceListed(uint256 indexed listingId, address indexed seller, uint256 indexed pokemonId, uint256 listingEndTime, uint256 price); // New event
+    event NFTSoldFixedPrice(address buyer, uint256 price, uint256 listingId); // New event for fixed-price sale
 
     event HighestBidIncreased(address bidder,uint256 amount,uint256 auctionId);
     event AuctionEnded(address winner,uint256 amount,uint256 auctionId);
@@ -41,7 +46,7 @@ contract AuctionManager is ReentrancyGuard{
     }
 
 
-    function create(uint256 _biddingTime, uint256 _startingBid,uint256 pokemonId) public nonReentrant returns (uint256) {
+    function create(uint256 _biddingTime, uint256 _startingBid,uint256 pokemonId,bool _isFixedPrice) public nonReentrant returns (uint256) {
         require(pokemonContract.isOwner(msg.sender,pokemonId),"You are not the owner of this Pokemon");
         require(_biddingTime>0,"Bidding time must be greater than 0");
         require(pokemonContract.isOwner(msg.sender,pokemonId));
@@ -61,6 +66,7 @@ contract AuctionManager is ReentrancyGuard{
         auction.startingBid = _startingBid;
         auction.pokemonId=pokemonId;
         auction.claimed=false;
+        auction.isFixedPrice=_isFixedPrice;
 
         emit AuctionCreated(auctionId,msg.sender,pokemonId,auction.auctionEndTime,_startingBid);
 
@@ -82,6 +88,11 @@ contract AuctionManager is ReentrancyGuard{
 
         auction.highestBidder=msg.sender;
         auction.highestBid=msg.value;
+        if(auction.isFixedPrice){
+            auction.ended=true; ///Only one person allowed to bid
+            auction.pendingReturns[auction.seller]+=auction.highestBid;
+            emit AuctionEnded(auction.highestBidder,auction.highestBid,auctionId);
+        }
         emit HighestBidIncreased(msg.sender,msg.value,auctionId);
     }
 
@@ -104,7 +115,7 @@ contract AuctionManager is ReentrancyGuard{
     function auctionEnd(uint256 auctionId) public nonReentrant{
         Auction storage auction=auctionData[auctionId];
         require(msg.sender==auction.seller,"Only the seller can end their auction");
-        require (block.timestamp>=auction.auctionEndTime,"Auction not yet ended.");
+        require ((block.timestamp>=auction.auctionEndTime),"Auction not yet ended.");
         require (!auction.ended,"The auction has already ended");
 
         auction.ended=true;

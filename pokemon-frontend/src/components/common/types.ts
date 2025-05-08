@@ -18,5 +18,6 @@ export interface PokemonNFT {
     endTime: number; // Unix timestamp
     startingBid: number;
     ended:boolean; // Even if the auction end time has passed, the seller must still end the auction
-    claimed:boolean // Determined if the NFT has been claimed or not
+    claimed:boolean; // Determined if the NFT has been claimed or not
+    isFixedPrice:boolean;
   }

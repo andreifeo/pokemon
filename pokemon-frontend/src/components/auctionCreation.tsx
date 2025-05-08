@@ -53,13 +53,13 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
     setIsModalOpen(false);
   };
 
-  const handleCreate = async (nftId: number, duration: number, startBid: number) => {
+  const handleCreate = async (nftId: number, duration: number, startBid: number,listingType:string) => {
       if (!createAuction) {
           console.error("Create auction function not available.");
           return;
       }
       try {
-          await createAuction(nftId, duration, startBid);
+          await createAuction(nftId, duration, startBid,listingType);
           alert("Auction created successfully (simulated).");
           // In a real app, you'd refresh active auctions and owned NFTs lists
       } catch (error) {
@@ -72,7 +72,7 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
   console.log(ownedNFTs.length);
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
-      <h4>2.1. Auction Creation</h4>
+      <h4>2.1. Listing Creation</h4>
       {isConnected ? (
         <>
             <button onClick={handleCreateAuctionClick} disabled={isLoadingOwnedNFTs || ownedNFTs.length === 0}>

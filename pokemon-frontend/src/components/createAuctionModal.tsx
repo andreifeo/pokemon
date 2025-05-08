@@ -5,7 +5,7 @@ interface CreateAuctionModalProps {
   isOpen: boolean;
   onClose: () => void;
   ownedNFTs: PokemonNFT[]; // List of NFTs the user can auction
-  onCreateAuction: (nftId: number, duration: number, startBid: number) => Promise<void>;
+  onCreateAuction: (nftId: number, duration: number, startBid: number,listingType:string) => Promise<void>;
 }
 
 const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose, ownedNFTs, onCreateAuction }) => {
@@ -13,6 +13,7 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
   const [durationHours, setDurationHours] = useState<number>(24); // Duration in hours
   const [startBid, setStartBid] = useState<number>(0.01); // Starting bid in Ether units
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [listingType,setListingType]=useState<string>("Auction")
   console.log("CC");
   console.log(ownedNFTs);
   // Reset state when modal opens
@@ -28,15 +29,15 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
   if (!isOpen) return null;
 
   const handleSubmit = async () => {
-    if (selectedNftId === '' || durationHours <= 0 || startBid <= 0) {
-      alert("Please select an NFT, set a valid duration and starting bid.");
+    if (selectedNftId === '' || durationHours <= 0 || startBid <= 0||(listingType!=="Auction" && listingType!=="Sale")) {
+      alert("Please select an NFT, set a valid duration and starting bid and select Auction or Sale");
       return;
     }
 
     setIsSubmitting(true);
     // Convert duration from hours to seconds for smart contract (common practice)
     const durationSeconds = durationHours * 3600;
-    await onCreateAuction(Number(selectedNftId), durationSeconds, startBid);
+    await onCreateAuction(Number(selectedNftId), durationSeconds, startBid,listingType);
     // onCreateAuction will handle closing the modal and showing alerts
     setIsSubmitting(false); // Should ideally be handled after await in parent or here on error
   };
@@ -48,24 +49,37 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
         justifyContent: 'center', alignItems: 'center', zIndex: 100
     }}>
       <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', minWidth: '300px' }}>
-        <h4>Create New Auction</h4>
+        <h4>Create New Listing</h4>
         <div>
-          <label>Select NFT:</label>
+          <label>Select Auction or Sale:</label>
           <select
-            value={selectedNftId}
-            onChange={(e) => setSelectedNftId(Number(e.target.value))}
-            disabled={ownedNFTs.length === 0 || isSubmitting}
-          >
-            {ownedNFTs.length === 0 ? (
-                <option value="">No NFTs available</option>
-            ) : (
-                ownedNFTs.map(nft => (
-                <option key={nft.id} value={nft.id}>
-                  {nft.name} (ID: {nft.id})
-                </option>
-              ))
-            )}
+            value={listingType}
+            onChange={(e)=>setListingType(String(e.target.value))}>
+              <option value="Auction">
+                Auction
+              </option>
+              <option value="Sale">
+                Sale
+              </option>
           </select>
+          <div style={{ marginTop: '15px' }}>
+            <label>Select NFT:</label>
+            <select
+              value={selectedNftId}
+              onChange={(e) => setSelectedNftId(Number(e.target.value))}
+              disabled={ownedNFTs.length === 0 || isSubmitting}
+            >
+              {ownedNFTs.length === 0 ? (
+                  <option value="">No NFTs available</option>
+              ) : (
+                  ownedNFTs.map(nft => (
+                  <option key={nft.id} value={nft.id}>
+                    {nft.name} (ID: {nft.id})
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
         </div>
         <div style={{ marginTop: '15px' }}>
           <label>Duration (hours):</label>
@@ -78,7 +92,7 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
           />
         </div>
         <div style={{ marginTop: '15px' }}>
-          <label>Starting Bid (ETH):</label>
+          <label>{`${listingType==="Sale"?"Selling Price":"Starting Bid"}`} (ETH):</label>
           <input
             type="number"
             value={startBid}
@@ -91,7 +105,7 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
         <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
           <button onClick={onClose} disabled={isSubmitting} style={{ marginRight: '10px' }}>Cancel</button>
           <button onClick={handleSubmit} disabled={isSubmitting || selectedNftId === ''}>
-            {isSubmitting ? 'Creating...' : 'Submit Auction'}
+            {isSubmitting ? 'Creating...' : `Submit  ${listingType}`}
           </button>
         </div>
       </div>

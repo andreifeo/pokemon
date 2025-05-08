@@ -191,13 +191,13 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
 
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
-      <h4>2.2. Active Auctions & Winning Redemption</h4>
+      <h4>2.2. Active Listings & Winning Redemption</h4>
 
-      <h5>Active Auctions</h5>
+      <h5>Active Listings</h5>
       {isLoadingActiveAuctions ? (
-          <p>Loading active auctions...</p>
+          <p>Loading active listings...</p>
       ) : activeAuctions.length === 0 ? (
-        <p>No active auctions found.</p>
+        <p>No active listings found.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {activeAuctions.map(auction => (
@@ -214,11 +214,11 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
       )}
 
 
-      <h5 style={{ marginTop: '20px' }}>Won Auctions (Ready to Claim)</h5>
+      <h5 style={{ marginTop: '20px' }}>Won Listings (Ready to Claim)</h5>
        {isLoadingWonAuctions ? (
-          <p>Loading won auctions...</p>
+          <p>Loading won listings...</p>
       ) : wonAuctions.length === 0 ? (
-        <p>No won auctions to claim.</p>
+        <p>No won listings to claim.</p>
       ) : (
          <ul style={{ listStyle: 'none', padding: 0 }}>
             {wonAuctions.map(auction => (

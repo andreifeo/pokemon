@@ -81,6 +81,43 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "pokemonId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "listingEndTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "FixedPriceListed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "bidder",
@@ -150,6 +187,31 @@
       }
     ],
     "name": "NFTRedeemedBySeller",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NFTSoldFixedPrice",
     "type": "event"
   },
   {
@@ -230,12 +292,27 @@
       },
       {
         "internalType": "uint256",
-        "name": "startingBid",
+        "name": "pokemonId",
         "type": "uint256"
       },
       {
+        "internalType": "bool",
+        "name": "isFixedPrice",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "ended",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "claimed",
+        "type": "bool"
+      },
+      {
         "internalType": "uint256",
-        "name": "pokemonId",
+        "name": "startingBid",
         "type": "uint256"
       },
       {
@@ -247,16 +324,6 @@
         "internalType": "uint256",
         "name": "highestBid",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "ended",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "claimed",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -317,6 +384,11 @@
         "internalType": "uint256",
         "name": "pokemonId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isFixedPrice",
+        "type": "bool"
       }
     ],
     "name": "create",

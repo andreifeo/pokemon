@@ -10,7 +10,7 @@ interface AuctionSectionProps {
 const AuctionSection: React.FC<AuctionSectionProps> = () => {
   return (
     <div style={{ border: '1px solid #ccc', padding: '20px' }}>
-      <h3>2. Auction System</h3>
+      <h3>2. Listing System</h3>
       <AuctionCreation />
       <ActiveAuctions />
       <OutbidRedemption />

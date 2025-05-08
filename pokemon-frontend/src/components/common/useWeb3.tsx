@@ -339,7 +339,8 @@ async function getActiveAuctions(pokemonContract: ethers.Contract | null, auctio
                        highestBidder: auction.highestBidder,
                        currentBid: auction.highestBid,
                        ended: auction.ended,
-                       claimed: auction.claimed
+                       claimed: auction.claimed,
+                       isFixedPrice: auction.isFixedPrice
                        // Note: pendingReturns is a mapping inside the struct and
                        // cannot be queried directly this way from off-chain.
                    });
@@ -369,7 +370,7 @@ async function getActiveAuctions(pokemonContract: ethers.Contract | null, auctio
 }
 
 
-async function createAuction(account: string, pokemonId: number, biddingTimeSeconds: number, startingBidEth: number, pokemonContract: ethers.Contract | null, auctionContract: ethers.Contract | null): Promise<void> {
+async function createAuction(account: string, pokemonId: number, biddingTimeSeconds: number, startingBidEth: number,listingType:string, pokemonContract: ethers.Contract | null, auctionContract: ethers.Contract | null): Promise<void> {
    if (!pokemonContract || !auctionContract || !account) {
        throw Error("No pokemon or auction contract or account not logged in");
    }
@@ -413,11 +414,11 @@ async function createAuction(account: string, pokemonId: number, biddingTimeSeco
        // const estimatedGas = await auctionManagerContract.create.estimateGas(biddingTimeBigInt, startingBidWei, pokemonId);
        // const gasLimit = estimatedGas * 120n / 100n; // Add a buffer
 
-
        const createTx = await auctionContract.create(
            biddingTimeBigInt,
            startingBidWei,
-           pokemonId
+           pokemonId,
+           (listingType==="Sale")
            // { gasLimit: gasLimit } // Include gasLimit if using estimation
        );
        console.log("Create auction transaction sent:", createTx.hash);
@@ -551,6 +552,9 @@ async function placeBid(account: string, auctionId: number, bidAmountEth: bigint
            throw new Error("Bid must be higher than the current highest bid.");
        }
        if (bidAmountWei < auctionDetails.startingBid) {
+        console.log("opa");
+            console.log(bidAmountWei);
+            console.log(auctionDetails.startingBid);
            throw new Error("Bid must be at least the starting bid.");
        }
        console.log("Sending bid transaction...");
@@ -689,11 +693,7 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
                // Fetch the details for each auction ID using the public getter
                const auction = await auctionContract.auctionData(auctionId);
 
-
-               if(auction.ended===true){
-                   console.log(auction);
-               }
-
+            
 
                // Check the three conditions for "won and claimable":
                // 1. Auction has ended
@@ -701,7 +701,7 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
                // 3. NFT has not been claimed yet
                // Ensure comparing addresses case-insensitively and BigInts/booleans correctly
                if (auction.ended === true &&
-                   (auction.highestBidder.toLowerCase() === account.toLowerCase()||(auction.highestBid==0 && auction.seller.toLowerCase()==account.toLowerCase())) &&
+                   (auction.highestBidder.toLowerCase() === account.toLowerCase()||(auction.highestBid===0 && auction.seller.toLowerCase()===account.toLowerCase())) &&
                    auction.claimed === false) {
                    console.log(`Found won and claimable auction: ${auctionId.toString()}`);
                    // Add the auction details to the list
@@ -714,18 +714,15 @@ async function getWonAuctions(account: string, pokemonContract: ethers.Contract 
                        highestBidder: auction.highestBidder,
                        currentBid: auction.highestBid,
                        ended: auction.ended,
-                       claimed: auction.claimed // Include the claimed status
+                       claimed: auction.claimed, // Include the claimed status
+                       isFixedPrice: auction.isFixedPrice
                        // Add other relevant fields from the struct if needed
                    });
                }
 
 
            } catch (error) {
-               // This shouldn't error if totalAuctionsCreated is accurate and auction IDs are sequential,
-               // unless there's a network issue or unexpected state.
                console.error(`Error fetching data for auction ID ${auctionId.toString()}:`, error);
-               // Depending on error handling needs, you might decide how to proceed.
-               // Logging the error and continuing is often acceptable here.
            }
        }
 
@@ -781,7 +778,7 @@ async function claimNFT(account: string, auctionId: number, auctionContract: eth
        // const estimatedGas = await auctionManagerContract.claimWonAuction.estimateGas(auctionId);
        // const gasLimit = estimatedGas * 120n / 100n; // Add a 20% buffer
        // const claimTx = await auctionManagerContract.claimWonAuction(auctionId, { gasLimit: gasLimit });
-       const claimTx = await (auctionDetails.highestBid != 0 ? auctionContract.claimWonNFT(auctionId) : auctionContract.reclaimUnsoldNFT(auctionId));
+       const claimTx = await (auctionDetails.highestBid !== 0 ? auctionContract.claimWonNFT(auctionId) : auctionContract.reclaimUnsoldNFT(auctionId));
        console.log("Claim transaction sent:", claimTx.hash);
 
 
@@ -1129,7 +1126,7 @@ interface Web3ContextType {
     isLoadingOwnedNFTs:boolean,
 
 //    getActiveAuctions?: () => Promise<Auction[]>;
-   createAuction?: (pokemonId: number, duration: number, startBid: number) => void;
+   createAuction?: (pokemonId: number, duration: number, startBid: number,listingType:string) => void;
    endAuction?:(auctionId:number)=>Promise<void>;
    placeBid?: (auctionId: number, bidAmount: bigint) => Promise<void>;
 //    getWonAuctions?: () => Promise<Auction[]>;
@@ -1396,7 +1393,7 @@ useEffect(() => {
             //    getOwnedNFTs: isConnected && account && pokemonContract ?()=> getOwnedNFTs(account,pokemonContract) : undefined,
             //    getActiveAuctions: isConnected && account && auctionContract ? () => getActiveAuctions(pokemonContract, auctionContract) : undefined,
                createAuction: isConnected && account && pokemonContract && auctionContract
-                   ? (pokemonId, duration, startBid) => createAuction(account, pokemonId, duration, startBid, pokemonContract, auctionContract)
+                   ? (pokemonId, duration, startBid,listingType) => createAuction(account, pokemonId, duration, startBid,listingType, pokemonContract, auctionContract)
                    : undefined,
                placeBid: isConnected && account && auctionContract
                    ? (auctionId, bidAmount) => placeBid(account, auctionId, bidAmount, auctionContract)

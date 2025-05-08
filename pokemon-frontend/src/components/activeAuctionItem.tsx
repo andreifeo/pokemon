@@ -92,9 +92,21 @@ const ActiveAuctionItem: React.FC<ActiveAuctionItemProps> = ({
                 <strong>{auction.nft.name}</strong>
                 {/* Assuming NFT type is also a property */}
                  {/* {auction.nft.type && ` (${auction.nft.type})`} */}
+                
                 <br />
+
+                {auction.isFixedPrice?
+                <>
+                    Buying Price: {truncateToFourDecimals(ethers.formatEther(auction.startingBid as unknown as bigint))} ETH
+                </>
+                :
+                <>
+                    Current Bid: {truncateToFourDecimals(ethers.formatEther(auction.currentBid as unknown as bigint))} ETH
+                </>
+                }
+            
                 {/* Format and truncate current bid here */}
-                Current Bid: {truncateToFourDecimals(ethers.formatEther(auction.currentBid as unknown as bigint))} ETH
+                {/* Current Bid: {truncateToFourDecimals(ethers.formatEther(auction.currentBid as unknown as bigint))} ETH */}
                 <br />
                 {/* Display the state variable managed by the timer */}
                 Time Left: {timeLeftString}
@@ -111,7 +123,7 @@ const ActiveAuctionItem: React.FC<ActiveAuctionItemProps> = ({
                                     disabled={!isConnected || !account || !(auction.seller.toLowerCase() === account?.toLowerCase()) || auction.endTime*1000 > Date.now()}
                                     // style={{ marginRight: '10px' }} // Space between buttons if another one was here (not applicable for seller)
                                 >
-                                    {'End Auction'}
+                                    {`End ${auction.isFixedPrice?"sale":"auction"}`}
                                 </button>
                             {/* Seller doesn't see a Bid button for their own auction */}
                         </>
@@ -124,7 +136,7 @@ const ActiveAuctionItem: React.FC<ActiveAuctionItemProps> = ({
                                      onClick={() => onBidClick(auction)}
                                      // Disable while modal is open or bid is submitting if needed
                                  >
-                                     {'Bid'}
+                                     {auction.isFixedPrice?'Buy':'Bid'}
                                  </button>
                              ) : (
                                  // Non-Seller: Show status if time ended OR already finalized
