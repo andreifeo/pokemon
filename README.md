@@ -1,4 +1,4 @@
-# Welcome
+[# Welcome
 
 This project demonstrates the minting of Pokemon cards as well as their trading. In the following documentation we will lead you through the set-up and then a more detailed explanation of how the project is structured.
 1. [Set-up](#set-up)
@@ -63,5 +63,5 @@ In the frontend we have all the files inside the folder _`pokemon-frontend`_. Th
 ### activeAuctionItem.tsx
 This is the file responsible for the individual auctions. `formatTimeLeft` formats the time shows in hours, minutes and seconds. The function `truncateToFourDecimals` is used for showing the current highest bid. 
 
-
+](https://github.com/andreifeo/pokemon)
 
