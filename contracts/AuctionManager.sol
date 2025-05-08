@@ -81,7 +81,9 @@ contract AuctionManager is ReentrancyGuard{
         require(msg.value>auction.highestBid,"There is already a higher bid.");
         require(msg.value>=auction.startingBid,"Bids must be higher than the starting bid");
         require(msg.sender!=auction.seller,"Seller cannot bid on their own auction");
-
+        if(auction.isFixedPrice){
+            require(msg.value==auction.startingBid,"The buyer should spend exactly the price of the NFT");
+        }
         if(auction.highestBid!=0){
             auction.pendingReturns[auction.highestBidder]+=auction.highestBid;
         }

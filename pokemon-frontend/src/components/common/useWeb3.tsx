@@ -843,6 +843,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
          auctionContract.off("AuctionEnded", handleAuctionEnded);
          auctionContract.off("NFTClaimed", handleNFTFinalized);
          auctionContract.off("NFTRedeemedBySeller", handleNFTFinalized);
+         pokemonContract.off("MintedPokemon", handlePokemonMint);
          // auctionContract.off("Withdrawal", handleWithdrawal); // Clean up optional listener
        };
      }, [auctionContract, pokemonContract, provider, isConnected, account, fetchActiveAuctions, fetchWonAuctions]);

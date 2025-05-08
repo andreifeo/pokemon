@@ -69,7 +69,6 @@ contract PokemonTest is ERC721, Ownable,ERC721Enumerable{
     
     event MintedPokemon(address account,uint256 tokenId);
 
-
     constructor()ERC721("PokemonTest","PKMN") Ownable(msg.sender){
         uint256 total=0;
         for(uint256 i=0;i<possiblePokemon.length;i++){
