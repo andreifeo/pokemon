@@ -5,7 +5,6 @@ export interface PokemonNFT {
     imageUrl: string;
     type: string; // e.g., "Fire", "Water"
     rarity:string
-    // Add other relevant attributes
   }
   
   // Represents an active auction
