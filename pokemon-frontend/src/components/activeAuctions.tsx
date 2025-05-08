@@ -113,7 +113,7 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
        }
        try {
            await placeBid(auctionId, bidAmount);
-           alert("Bid placed successfully (simulated).");
+           alert("Bid placed successfully.");
            // In a real app, refresh active auctions
        } catch (error) {
            console.error("Failed to place bid:", error);
@@ -136,7 +136,7 @@ const ActiveAuctions: React.FC<ActiveAuctionsProps> = () => {
        if (window.confirm("Are you sure you want to claim this NFT?")) {
             try {
                 await claimNFT(auctionId);
-                alert("NFT claimed successfully (simulated).");
+                alert("NFT claimed successfully.");
                 // In a real app, refresh won auctions list and user's owned NFTs
             } catch (error) {
                  console.error("Failed to claim NFT:", error);

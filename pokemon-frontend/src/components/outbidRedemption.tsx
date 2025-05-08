@@ -19,7 +19,7 @@ const OutbidRedemption: React.FC<OutbidRedemptionProps> = () => {
         setIsClaiming(true);
         try {
             await claimAllOutbidFunds();
-            alert("Outbid funds claimed successfully (simulated). Check your wallet balance.");
+            alert("Outbid funds claimed successfully. Check your wallet balance.");
             // In a real app, you might show the amount claimed or update a balance display
         } catch (error) {
             console.error("Failed to claim funds:", error);

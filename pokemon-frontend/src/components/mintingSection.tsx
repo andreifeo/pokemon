@@ -19,7 +19,6 @@ const MintingSection: React.FC<MintingSectionProps> = () => {
     }
     setIsMinting(true);
     try {
-      // Simulate the minting process
       const newNFT = await mintNFT();
       alert(`Successfully minted NFT: ${newNFT.name} (ID: ${newNFT.id})`);
       // In a real app, you'd likely refresh the user's owned NFTs list here

@@ -60,7 +60,7 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
       }
       try {
           await createAuction(nftId, duration, startBid,listingType);
-          alert("Auction created successfully (simulated).");
+          alert("Auction created successfully.");
           // In a real app, you'd refresh active auctions and owned NFTs lists
       } catch (error) {
           console.error("Failed to create auction:", error);
