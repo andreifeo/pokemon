@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useWeb3 } from './common/useWeb3';
 
 interface OutbidRedemptionProps {
-  // No specific props needed here, uses useWeb3 hook
 }
 
 const OutbidRedemption: React.FC<OutbidRedemptionProps> = () => {
@@ -14,13 +13,11 @@ const OutbidRedemption: React.FC<OutbidRedemptionProps> = () => {
        alert("Connect your wallet to claim funds.");
        return;
     }
-     // Add confirmation if needed
      if (window.confirm("Are you sure you want to claim your outbid funds?")) {
         setIsClaiming(true);
         try {
             await claimAllOutbidFunds();
             alert("Outbid funds claimed successfully. Check your wallet balance.");
-            // In a real app, you might show the amount claimed or update a balance display
         } catch (error) {
             console.error("Failed to claim funds:", error);
             alert("Failed to claim funds.");

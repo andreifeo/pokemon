@@ -4,19 +4,18 @@ import { PokemonNFT } from './common/types';
 interface CreateAuctionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  ownedNFTs: PokemonNFT[]; // List of NFTs the user can auction
+  ownedNFTs: PokemonNFT[]; 
   onCreateAuction: (nftId: number, duration: number, startBid: number,listingType:string) => Promise<void>;
 }
 
 const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose, ownedNFTs, onCreateAuction }) => {
   const [selectedNftId, setSelectedNftId] = useState<number | ''>('');
-  const [durationHours, setDurationHours] = useState<number>(24); // Duration in hours
-  const [startBid, setStartBid] = useState<number>(0.01); // Starting bid in Ether units
+  const [durationHours, setDurationHours] = useState<number>(24); 
+  const [startBid, setStartBid] = useState<number>(0.01);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [listingType,setListingType]=useState<string>("Auction")
   console.log("CC");
   console.log(ownedNFTs);
-  // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedNftId(ownedNFTs.length > 0 ? ownedNFTs[0].id : '');
@@ -35,11 +34,9 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
     }
 
     setIsSubmitting(true);
-    // Convert duration from hours to seconds for smart contract (common practice)
     const durationSeconds = durationHours * 3600;
     await onCreateAuction(Number(selectedNftId), durationSeconds, startBid,listingType);
-    // onCreateAuction will handle closing the modal and showing alerts
-    setIsSubmitting(false); // Should ideally be handled after await in parent or here on error
+    setIsSubmitting(false);
   };
 
   return (
@@ -97,7 +94,7 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
             type="number"
             value={startBid}
             onChange={(e) => setStartBid(Number(e.target.value))}
-            min="0.001" // Example minimum bid
+            min="0.001"
             step="0.001"
             disabled={isSubmitting}
           />

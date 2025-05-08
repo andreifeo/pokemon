@@ -2,7 +2,6 @@ import React from 'react';
 import { useWeb3 } from './common/useWeb3';
 
 interface MintingSectionProps {
-  // No specific props needed for this simple button component
 }
 
 const MintingSection: React.FC<MintingSectionProps> = () => {
@@ -21,7 +20,6 @@ const MintingSection: React.FC<MintingSectionProps> = () => {
     try {
       const newNFT = await mintNFT();
       alert(`Successfully minted NFT: ${newNFT.name} (ID: ${newNFT.id})`);
-      // In a real app, you'd likely refresh the user's owned NFTs list here
     } catch (error) {
       console.error("Minting failed:", error);
       alert("Failed to mint NFT.");
