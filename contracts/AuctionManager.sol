@@ -35,9 +35,11 @@ contract AuctionManager is ReentrancyGuard{
     event NFTRedeemedBySeller(uint256 indexed auctionId, address indexed seller, uint256 pokemonId);
     event Withdrawal(address indexed user, uint256 amount, uint256 auctionId);
 
+
     constructor(address _pokemonContractAddress){
         pokemonContract=PokemonTest(_pokemonContractAddress);
     }
+
 
     function create(uint256 _biddingTime, uint256 _startingBid,uint256 pokemonId) public nonReentrant returns (uint256) {
         require(pokemonContract.isOwner(msg.sender,pokemonId),"You are not the owner of this Pokemon");
@@ -65,6 +67,7 @@ contract AuctionManager is ReentrancyGuard{
         return auctionId;
     }
 
+
     function bid(uint256 auctionId) public payable nonReentrant{
         Auction storage auction=auctionData[auctionId];
         require(auction.seller!=address(0),"Auction does not exist");
@@ -82,7 +85,8 @@ contract AuctionManager is ReentrancyGuard{
         emit HighestBidIncreased(msg.sender,msg.value,auctionId);
     }
 
-    function withdraw(uint256 auctionId)public nonReentrant returns(bool){
+
+    function withdraw(uint256 auctionId) public nonReentrant returns(bool){
         Auction storage auction=auctionData[auctionId];
         uint256 amount=auction.pendingReturns[msg.sender];
         if(amount>0){
@@ -95,6 +99,7 @@ contract AuctionManager is ReentrancyGuard{
         }
         return true;
     }
+
 
     function auctionEnd(uint256 auctionId) public nonReentrant{
         Auction storage auction=auctionData[auctionId];
@@ -109,6 +114,7 @@ contract AuctionManager is ReentrancyGuard{
             auction.pendingReturns[auction.seller]+=auction.highestBid;
         }
     }
+
 
     function claimWonNFT(uint256 auctionId) public nonReentrant{
         Auction storage auction = auctionData[auctionId];
@@ -127,6 +133,7 @@ contract AuctionManager is ReentrancyGuard{
         emit PokemonTransfered(auctionId, auction.pokemonId, address(this), msg.sender); // Can emit both
     }
 
+
     function reclaimUnsoldNFT(uint256 auctionId) public nonReentrant{
         Auction storage auction = auctionData[auctionId];
 
@@ -144,6 +151,7 @@ contract AuctionManager is ReentrancyGuard{
         emit PokemonTransfered(auctionId, auction.pokemonId, address(this), msg.sender);
     }
 
+
     function getPendingReturn(uint256 auctionId, address user) public view returns (uint256) {
         // Basic check if the auction exists
         if (auctionData[auctionId].seller == address(0)) {
@@ -152,8 +160,10 @@ contract AuctionManager is ReentrancyGuard{
         return auctionData[auctionId].pendingReturns[user];
     }
 
+
     function totalAuctionsCreated() public view returns(uint256){
         return nextId-1;
     }
+
 
 }
