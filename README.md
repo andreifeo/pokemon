@@ -13,7 +13,7 @@ npm install --save react-router-dom
 
 If you do not have hardhat installed yet, install it through:
 ```shell
-npm install --save-dev hardhat -> in pokemon
+npm install --save-dev hardhat
 ```
 
 As some later versions of Node are unsupported, it is useful to install a previous version which has been proven to work:
