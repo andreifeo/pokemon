@@ -4,39 +4,11 @@ import { PokemonNFT } from './common/types';
 import CreateAuctionModal from './createAuctionModal';
 
 interface AuctionCreationProps {
-  // No specific props needed here, uses useWeb3 hook
 }
 
 const AuctionCreation: React.FC<AuctionCreationProps> = () => {
   const { account, isConnected, ownedNFTs,isLoadingOwnedNFTs, createAuction } = useWeb3();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [ownedNFTs, setOwnedNFTs] = useState<PokemonNFT[]>([]);
-  // const [isLoadingNFTs, setIsLoadingNFTs] = useState(false);
-
-  // useEffect(() => {
-  //   console.log("THIS REFRESHES HERE");
-  //   const fetchNFTs = async () => {
-  //     if (getOwnedNFTs) {
-  //       setIsLoadingNFTs(true);
-  //       try {
-  //         const nfts = await getOwnedNFTs();
-  //         console.log("DOREL");
-  //         console.log(nfts);
-  //         setOwnedNFTs(nfts);
-  //       } catch (error) {
-  //         console.error("Failed to fetch owned NFTs:", error);
-  //       } finally {
-  //         setIsLoadingNFTs(false);
-  //       }
-  //     }
-  //   };
-  //   if (isConnected) {
-  //     fetchNFTs();
-  //   } else {
-  //       setOwnedNFTs([]); // Clear NFTs if disconnected
-  //   }
-  // }, [isConnected, getOwnedNFTs]); // Re-run when connection status or getter changes
-
   console.log("AA");
   console.log(ownedNFTs);
   console.log("BB");
@@ -61,22 +33,19 @@ const AuctionCreation: React.FC<AuctionCreationProps> = () => {
       try {
           await createAuction(nftId, duration, startBid,listingType);
           alert("Auction created successfully.");
-          // In a real app, you'd refresh active auctions and owned NFTs lists
       } catch (error) {
           console.error("Failed to create auction:", error);
           alert("Failed to create auction.");
       }
-      handleCloseModal(); // Close modal after attempt
+      handleCloseModal();
   };
-  console.log("Length of owned NFT");
-  console.log(ownedNFTs.length);
   return (
     <div style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px' }}>
       <h4>2.1. Listing Creation</h4>
       {isConnected ? (
         <>
             <button onClick={handleCreateAuctionClick} disabled={isLoadingOwnedNFTs || ownedNFTs.length === 0}>
-              {isLoadingOwnedNFTs ? 'Loading NFTs...' : 'Create Auction'}
+              {isLoadingOwnedNFTs ? 'Loading NFTs...' : 'Create Listing'}
             </button>
             {ownedNFTs.length === 0 && !isLoadingOwnedNFTs && <p>No NFTs available to auction.</p>}
             <CreateAuctionModal

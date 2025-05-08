@@ -5,7 +5,7 @@ import { transformValueTypes } from 'framer-motion';
 interface BidModalProps {
   isOpen: boolean;
   onClose: () => void;
-  auction: Auction | null; // The auction being bid on
+  auction: Auction | null;
   onPlaceBid: (auctionId: number, bidAmount: bigint) => Promise<void>;
 }
 
@@ -13,7 +13,6 @@ const BidModal: React.FC<BidModalProps> = ({ isOpen, onClose, auction, onPlaceBi
   const [bidAmount, setBidAmount] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Set minimum bid when modal opens
   useEffect(() => {
     if (isOpen && auction) {
       try{
@@ -27,17 +26,10 @@ const BidModal: React.FC<BidModalProps> = ({ isOpen, onClose, auction, onPlaceBi
         const minNextBidEthString = ethers.formatEther(minNextBidWei)
         console.log(minNextBidEthString);
 
-        // try{
-        //   const minIncrementWei=ethers.parseEther("0.001");
-        //   const minBidWei=auction.currentBid+minIncrementWei;
-        // }
-        // Minimum bid is current bid + a small increment (e.g., 0.001 ETH)
-        // In a real app, this increment might be defined by the contract or UI rules
-        // const minBid = auction.currentBid + 0.001; // Example increment
         setBidAmount(minNextBidEthString);
       }catch(error){
         console.error("Error calculating initial min bid:", error);
-        setBidAmount(''); // Fallback on error
+        setBidAmount('');
       }
     }else{
       setBidAmount('0');
@@ -90,22 +82,6 @@ const BidModal: React.FC<BidModalProps> = ({ isOpen, onClose, auction, onPlaceBi
       alert("Failed to place bid. See console for details.");
       setIsSubmitting(false); 
     }
-    //   // Simple validation: bid must be higher than current bid + increment
-    //   const minValidBid = auction.currentBid + 0.0009; // Check against slightly less than UI min
-    //   if (bidAmount <= auction.currentBid || bidAmount < minValidBid) {
-    //     alert(`Bid must be higher than the current bid (${auction.currentBid} ETH). Minimum bid: ${auction.currentBid + 0.001} ETH`);
-    //     return;
-    //   }
-    //    if (bidAmount <= 0) {
-    //        alert("Bid amount must be positive.");
-    //        return;
-    //    }
-
-
-    // setIsSubmitting(true);
-    // await onPlaceBid(auction.id, bidAmount);
-    // // onPlaceBid will handle closing the modal and showing alerts
-    // setIsSubmitting(false); // Should ideally be handled after await in parent or here on error
   };
   const handleSubmitBuy = async (buyPrice:string) => {
     setIsSubmitting(true);
@@ -150,51 +126,32 @@ const BidModal: React.FC<BidModalProps> = ({ isOpen, onClose, auction, onPlaceBi
       alert("Failed to place bid. See console for details.");
       setIsSubmitting(false); 
     }
-    //   // Simple validation: bid must be higher than current bid + increment
-    //   const minValidBid = auction.currentBid + 0.0009; // Check against slightly less than UI min
-    //   if (bidAmount <= auction.currentBid || bidAmount < minValidBid) {
-    //     alert(`Bid must be higher than the current bid (${auction.currentBid} ETH). Minimum bid: ${auction.currentBid + 0.001} ETH`);
-    //     return;
-    //   }
-    //    if (bidAmount <= 0) {
-    //        alert("Bid amount must be positive.");
-    //        return;
-    //    }
-
-
-    // setIsSubmitting(true);
-    // await onPlaceBid(auction.id, bidAmount);
-    // // onPlaceBid will handle closing the modal and showing alerts
-    // setIsSubmitting(false); // Should ideally be handled after await in parent or here on error
   };
   const handleBuy=async()=>{
-    console.log("popel");
-    console.log(auction.startingBid);
-    console.log((auction.startingBid).toString());
     setBidAmount((auction.startingBid).toString());
-    console.log(bidAmount);
     handleSubmitBuy(ethers.formatEther(auction.startingBid.toString()).toString());
   }
   const bidAmountWeiForComparison = bidAmount ? (() => {
       try {
         return ethers.parseEther(bidAmount);
       } catch {
-        return 0n; // Return 0n for invalid input string
+        return 0n;
       }
   })() : 0n;
 
-  let minInputEth = "0.001"; // Default minimum if current bid is 0
-if (auction.currentBid > 0) { // Check if current bid is greater than BigInt 0
+  let minInputEth = "0.001";
+if (auction.currentBid > 0) { 
     try {
-         const minIncrementWei = "0.001"; // Convert increment to BigInt Wei
-         const minNextBidWei = (auction.currentBid as unknown as bigint ) + ethers.parseEther(minIncrementWei); // Valid BigInt + BigInt addition
-         minInputEth = ethers.formatEther(minNextBidWei); // Format the BigInt result to a string in ETH
+         const minIncrementWei = "0.001"; 
+         const minNextBidWei = (auction.currentBid as unknown as bigint ) + ethers.parseEther(minIncrementWei); 
+         minInputEth = ethers.formatEther(minNextBidWei);
     } catch (error) {
         console.error("Error calculating min input value:", error);
-         minInputEth = "0"; // Fallback
+         minInputEth = "0"; 
     }
 }
-
+  console.log("dorel");
+  console.log(auction);
   return (
     <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -206,17 +163,6 @@ if (auction.currentBid > 0) { // Check if current bid is greater than BigInt 0
       <h4>Buy NFT</h4>
       <p>Sale for: <strong>{auction.nft.name}</strong></p>
       <p>Buying Price: {auction.startingBid} WEI</p>
-      {/* <div style={{ marginTop: '15px' }}>
-        <label>Your Bid (ETH):</label>
-        <input
-          type="number"
-          value={bidAmount}
-          onChange={(e) => setBidAmount(e.target.value)}
-           min={minInputEth} // Suggest minimum bid
-          step="0.001"
-          disabled={isSubmitting}
-        />
-      </div> */}
       <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={onClose} disabled={isSubmitting} style={{ marginRight: '10px' }}>Cancel</button>
         <button onClick={handleBuy} disabled={isSubmitting || bidAmountWeiForComparison <= auction.currentBid}> {/* Disable if bid not higher */}
@@ -228,21 +174,24 @@ if (auction.currentBid > 0) { // Check if current bid is greater than BigInt 0
       <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', minWidth: '300px' }}>
         <h4>Place Bid</h4>
         <p>Auction for: <strong>{auction.nft.name}</strong></p>
+        {auction.highestBidder!=="0x0000000000000000000000000000000000000000"?
         <p>Current Highest Bid: {auction.currentBid} WEI</p>
+        :
+        <p>Starting Bid: {auction.startingBid} WEI</p>}
         <div style={{ marginTop: '15px' }}>
           <label>Your Bid (ETH):</label>
           <input
             type="number"
             value={bidAmount}
             onChange={(e) => setBidAmount(e.target.value)}
-             min={minInputEth} // Suggest minimum bid
+             min={minInputEth}
             step="0.001"
             disabled={isSubmitting}
           />
         </div>
         <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
           <button onClick={onClose} disabled={isSubmitting} style={{ marginRight: '10px' }}>Cancel</button>
-          <button onClick={handleSubmit} disabled={isSubmitting || bidAmountWeiForComparison <= auction.currentBid}> {/* Disable if bid not higher */}
+          <button onClick={handleSubmit} disabled={isSubmitting || bidAmountWeiForComparison <= auction.currentBid|| bidAmountWeiForComparison<auction.startingBid}> {/* Disable if bid not higher */}
             {isSubmitting ? 'Placing Bid...' : 'Place Bid'}
           </button>
         </div>
@@ -254,13 +203,3 @@ if (auction.currentBid > 0) { // Check if current bid is greater than BigInt 0
 };
 
 export default BidModal;
-
-
-/*
-1000000000000000n
-1000000000000000000n
-1000000000000000000
-
-10000000000000000n
-1000000000000000000n
-*/
