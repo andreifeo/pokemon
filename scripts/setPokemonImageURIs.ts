@@ -1,13 +1,11 @@
-// scripts/setPokemonImageURIs.ts
 import { ethers } from "hardhat";
 import PokemonTestABI from "../ignition/deployments/chain-1337/artifacts/AuctionModule#PokemonTest.json";
 
 async function main() {
   const [owner] = await ethers.getSigners();
-  const contractPokemonAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your contract address
+  const contractPokemonAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const pokemonContract = new ethers.Contract(contractPokemonAddress, PokemonTestABI.abi, owner);
 
-  // Replace these with your actual IPFS URIs
   const pokemonImageMap: { [key: string]: string } = {
     "Pikachu": "ipfs://QmYLnjZpAQBRfogcNCRxBTSCisK7sn6NuxnymVEeq6eBgS",
     "Charizard": "ipfs://Qmd6TojxghMrFKXoCiKQ5Vx86HYWx9ahxwAEWv7WKnFJaz",
@@ -19,7 +17,6 @@ async function main() {
     "Gengar": "ipfs://QmU5Q5VmYZws4mcz1wtk3rr72X8eKXS6sqf1cUGTjFajJP",
     "Dragonite": "ipfs://QmVi7bxk2geWS66xtDMrMeDx97gftWtM1QXHrdnzWNzLmP",
     "Eevee": "ipfs://QmNn6WnbjcPzQ8JG53AhE2CUNjwqXJFYhG4E1LxsdeYkqw",
-    // Add all your Pokémon and their IPFS URIs
   };
 
   console.log("Setting Pokémon image URIs...");
