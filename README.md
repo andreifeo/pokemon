@@ -1,4 +1,8 @@
-[# Welcome
+# Welcome
+This project was brought to you by 
+- Andrei Feodorov (22-949-002) who wrote the contracts and made the frontend 
+- Amelie Rüfenach (22-938-492) who wrote the documentation and made the test cases
+
 
 This project demonstrates the minting of Pokemon cards as well as their trading. In the following documentation we will lead you through the set-up and then a more detailed explanation of how the project is structured.
 1. [Set-up](#set-up)
@@ -35,6 +39,9 @@ The account numbers listed here (numbered #0 to #19) may be used as test account
 In a new terminal, call
 ```shell
 npx hardhat ignition deploy ignition/modules/AuctionModule.ts --network localhost --reset
+```
+Write yes/y to the two prompts asking for confirmation about the local network to be used. Call
+```shell
 npx hardhat run --network localhost scripts/setPokemonImageURIs.ts
 ```
 
@@ -61,7 +68,37 @@ Broadly speaking, the program consists of, on the backend, the contracts _`Aucti
 In the frontend we have all the files inside the folder _`pokemon-frontend`_. The main code of the frontend is inside the folder _`src/components`_. Outside of it are mostly automatically intitialized files in order to have a functioning environment.
 
 ### activeAuctionItem.tsx
-This is the file responsible for the individual auctions. `formatTimeLeft` formats the time shows in hours, minutes and seconds. The function `truncateToFourDecimals` is used for showing the current highest bid. 
+This is the file responsible for the individual auctions. 
+`formatTimeLeft`: This formats the time left for the listing in hours, minutes and seconds. 
+`truncateToFourDecimals`: used for making sure that the current highest bid, when showed, is legible
+`ActiveAuctionItem`: This is the main function of this file. It first checks whether we have all the necessary data to continue with the listing. Then, it continuously counts down the remainding time for the listing and displays it. Finally, it shows two different buttons depending on whether the connected wallet is the owner of the auctioned NFT is: either "Bid" or "End Auction", the latter which can only be selected after the time runs out, the former until just before the time runs out. In either case, once selected, a handler is sent back to the "parent" file, _`activeAuctions.tsx`_.
 
-](https://github.com/andreifeo/pokemon)
 
+### activeAuctions.tsx
+In the first part of the file, in addition to the usual imports present in the file, the function `ActiveAuctions` loads necessary handlers from _`useWeb3.tsx`_. 
+In the next part of the code these are then used to call the contract functions when necessary, such as when `handleBidClick` is returned after clicking on the `Bid` button described in `ActiveAuctionItem`.
+In the return function is the basic framework of the visible website. It is also where the two dependent functions `ActiveAuctionItem` in _`activeAuctionItems.tsx`_ and `BidModal` in _`bidModal.tsx`_ are called.
+
+
+### bidModal.tsx
+This file handles the bidding for the auctions. How much the default starting bid is, the minimum increase.
+_`handleSubmit`_: Once someone submits their bid, this tests whether the bid is correct and sufficient. Then, it places the bid, returning the alert "Failed to place the bid. See console for details." in case it fails.
+Similarly to _`activeAuctionItem.tsx`_, in the return function the buttons are specified with dedicated handlers called in case of an action (the button being clicked). 
+
+
+### useWeb3.tsx
+Aside from the two all-important contract files, the file with perhaps the most important binding role.
+Mostly it consists of the same functions as are present in the Solidity contracts, implemented out.
+`minNFT`: called by _`mintingSection.tsx`_, this function, as its name tells us, allows the minting of NFTs. Specifically, of Pokemons. It calls the Solidity contract minting function, checks for errors and transfers the newly minted Pokemon to the correct account.
+`placeBid`: called inside _`bidModal.tsx`_, this checks whether the bid is allowed before mining the transaction.
+At the end of this long list of functions are the commands that tie the connected wallet to the program as Signer with Contracts. These are then also tied to the above functions.
+
+
+### PokemonTest.sol
+For the minting of pokemon cards we chose to randomly choose their names, as well as their rarity. We also implemented the openzeppelin ERC721 standard and in addition to a mint function, a burn function as well. Keeping in mind that only the owner is authorized to burn their pokemon cards.
+
+
+
+## Sources
+Amongst multiple open-source resources such as Hardhat and @openzeppelin, we also used Gemini, especially to generate tests.
+From @openzeppelin we for example made use of their ERC721 template or anywhere else as can be seen by the imports.
