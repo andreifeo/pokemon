@@ -1,9 +1,11 @@
 # Welcome
 
-This project demonstrates the minting of Pokemon cards as well as their trading.
-# Set-up
-
-To test the contracts, you may set up a localhost through the following instructions:
+This project demonstrates the minting of Pokemon cards as well as their trading. In the following documentation we will lead you through the set-up and then a more detailed explanation of how the project is structured.
+1. [Set-up](#set-up)
+2. [Function Documentation](#function-documentation)
+   
+## Set-up
+First download all the files and open them. Then, to test the contracts, you can set up a localhost through the following:
 
 ```shell
 npm install --save react-router-dom
@@ -52,7 +54,7 @@ The next step is to add the custom test network:
 7. Save the network and then select it. You will be able to connect your MetaMask wallet now. Reload the page otherwise.
 
 
-#Function Documentation
+## Function Documentation
 
 
 
