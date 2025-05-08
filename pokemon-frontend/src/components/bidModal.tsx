@@ -156,6 +156,7 @@ if (auction.currentBid > 0) {
       <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', minWidth: '300px' }}>
       <h4>Buy NFT</h4>
       <p>Sale for: <strong>{auction.nft.name}</strong></p>
+      <p>{auction.nft.rarity}</p>
       <p>Buying Price: {auction.startingBid} WEI</p>
       <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={onClose} disabled={isSubmitting} style={{ marginRight: '10px' }}>Cancel</button>
@@ -168,6 +169,8 @@ if (auction.currentBid > 0) {
       <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', minWidth: '300px' }}>
         <h4>Place Bid</h4>
         <p>Auction for: <strong>{auction.nft.name}</strong></p>
+        <p>{auction.nft.rarity}</p>
+
         {auction.highestBidder!=="0x0000000000000000000000000000000000000000"?
         <p>Current Highest Bid: {auction.currentBid} WEI</p>
         :

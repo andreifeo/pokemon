@@ -19,7 +19,7 @@ const MintingSection: React.FC<MintingSectionProps> = () => {
     setIsMinting(true);
     try {
       const newNFT = await mintNFT();
-      alert(`Successfully minted NFT: ${newNFT.name} (ID: ${newNFT.id})`);
+      alert(`Successfully minted NFT: ${newNFT.name}: ${newNFT.rarity}(ID: ${newNFT.id})`);
     } catch (error) {
       console.error("Minting failed:", error);
       alert("Failed to mint NFT.");

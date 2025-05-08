@@ -70,7 +70,7 @@ const ActiveAuctionItem: React.FC<ActiveAuctionItemProps> = ({
         <li style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px', display: 'flex', alignItems: 'center' }}>
             <img src={auction.nft.imageUrl} alt={auction.nft.name} style={{ width: '50px', height: '50px', marginRight: '15px' }} />
             <div>
-                <strong>{auction.nft.name}</strong>                
+                <strong>{auction.nft.name}</strong>: {auction.nft.rarity}
                 <br />
 
                 {auction.isFixedPrice?

@@ -55,12 +55,13 @@ async function mintNFT(account: string, pokemonContract: ethers.Contract | null)
                }
                let metadata;
                metadata = JSON.parse(jsonString);
+               console.log(metadata);
                newNFT = {
                    id: mintedTokenId,
                    name: metadata.name,
                    imageUrl: metadata.image,
-                   type: metadata.attributes[0].type,
-                   rarity: metadata.attributes[0].rarity
+                   type: metadata.attributes[0].value,
+                   rarity: metadata.attributes[1].value
                };
            }
        } else {

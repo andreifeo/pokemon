@@ -69,7 +69,7 @@ const CreateAuctionModal: React.FC<CreateAuctionModalProps> = ({ isOpen, onClose
               ) : (
                   ownedNFTs.map(nft => (
                   <option key={nft.id} value={nft.id}>
-                    {nft.name} (ID: {nft.id})
+                    {nft.name}, {nft.rarity} (ID: {nft.id})
                   </option>
                 ))
               )}
